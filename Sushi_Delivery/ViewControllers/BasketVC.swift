@@ -10,10 +10,8 @@ import UIKit
 class BasketVC: UIViewController, UITableViewDataSource, UITableViewDelegate  {
 
     var myTableView = UITableView()
-    //var images: [String] = []
-    //var labels: [String] = []
-    //var prices: [String] = []
-    var tableViewData: [(image: UIImage, title: String, price: String)] = []
+    
+    var productsInBasket: [String: Product] = [:]
 
     
     override func viewDidLoad() {
@@ -25,11 +23,7 @@ class BasketVC: UIViewController, UITableViewDataSource, UITableViewDelegate  {
         self.myTableView.delegate = self
         self.myTableView.dataSource = self
         myTableView.register(TableViewCell.self, forCellReuseIdentifier: "YourCellIdentifier")
-        
-        
-        //images = ["Abogado", "Ebi", "Hotate", "Maguro", "Syake", "Tamago", "Unagi", "Ikura", "Spicy maguro", "Spicy syake", "Spicy unagi", "Tobiko", "Wakame sarada", "Idaho maki", "O ritsu maki", "Osaka maki", "Yaki maki"]
-        //labels = images
-        //prices = ["117 ₽","147 ₽", "147 ₽", "137 ₽", "127 ₽", "113 ₽", "147 ₽", "229 ₽", "199 ₽", "199 ₽", "199 ₽", "177 ₽", "115 ₽", "497 ₽", "697 ₽", "657 ₽", "637 ₽"]
+
         
         view.addSubview(myTableView)
         
@@ -37,37 +31,24 @@ class BasketVC: UIViewController, UITableViewDataSource, UITableViewDelegate  {
     }
     
     @objc func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tableViewData.count
+        return productsInBasket.count
         }
 
-    /* старая функция, использовал для настройки ячеек
-     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = TableViewCell(style: .default, reuseIdentifier: "TableViewCell")
-        
-        let imageName = images[indexPath.item]
-        let labelTitle = labels[indexPath.item]
-        let price = prices[indexPath.item]
-            
-        cell.customImageView.image = UIImage(named: imageName)
-        cell.customTitleLabel.text = labelTitle
-        cell.customPriceLabel.text = price
-        return cell
-       } */
     
   
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "YourCellIdentifier", for: indexPath) as! TableViewCell
-            
-            let tuple = tableViewData[indexPath.row]
-            let image = tuple.image
-            let title = tuple.title
-            let price = tuple.price
-            
-            cell.customImageView.image = image
-            cell.customTitleLabel.text = title
-            cell.customPriceLabel.text = price
-            
-            return cell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "YourCellIdentifier", for: indexPath) as! TableViewCell
+        
+        let product = Array(productsInBasket.values)[indexPath.row]
+        cell.customImageView.image = product.image
+        cell.customTitleLabel.text = product.title
+        cell.customPriceLabel.text = product.price
+        cell.sumLabel.text = "\(product.quantity)" // Настройка количества
+        //cell.layer.borderColor = UIColor.white.cgColor // Устанавливает красный цвет границы ячейки
+        //cell.layer.borderWidth = 1.0 // Устанавливает ширину границы ячейки в 2 пикселя
+
+    
+        return cell
 
         }
     
@@ -75,12 +56,20 @@ class BasketVC: UIViewController, UITableViewDataSource, UITableViewDelegate  {
 }
 
 extension BasketVC: ViewController2Delegate {
-    func didSelectProduct(image: UIImage, title: String, price: String) {
-        // Assuming you have an array to store the data for the TableView
-        tableViewData.append((image, title, price))
-        
-        let index = IndexPath(row: tableViewData.endIndex - 1, section: 0)
-        myTableView.insertRows(at: [index], with: .automatic)
-    }
+    // Метод делегата для добавления продукта в корзину
+        func didSelectProduct(image: UIImage, title: String, price: String) {
+            if let existingProduct = productsInBasket[title] {
+                // Если продукт уже в корзине, обновляем количество
+                let updatedProduct = Product(image: existingProduct.image, title: existingProduct.title, price: existingProduct.price, quantity: existingProduct.quantity + 1)
+                productsInBasket[title] = updatedProduct
+            } else {
+                // Если продукта нет в корзине, добавляем его
+                let newProduct = Product(image: image, title: title, price: price, quantity: 1)
+                productsInBasket[title] = newProduct
+            }
+            
+            // Обновляем таблицу
+            myTableView.reloadData()
+        }
     
 }

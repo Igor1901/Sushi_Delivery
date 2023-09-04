@@ -49,6 +49,8 @@ class TableViewCell: UITableViewCell {
         stackView.alignment = .center
         stackView.distribution = .fill
         stackView.spacing = 8.0
+        //stackView.backgroundColor = UIColor(red: 21/255, green: 22/255, blue: 27/255, alpha: 1)
+        
         
         minusButton.setImage(minusImage, for: .normal)
         minusButton.addTarget(self, action: #selector(minusButtonFunc), for: .touchUpInside)

@@ -12,6 +12,22 @@ protocol ViewController2Delegate: AnyObject {
 }
 
 
+struct Product {
+    let image: UIImage
+    let title: String
+    let price: String
+    var quantity: Int // Новое поле для отслеживания количества продуктов
+
+    // Инициализатор структуры
+    init(image: UIImage, title: String, price: String, quantity: Int) {
+        self.image = image
+        self.title = title
+        self.price = price
+        self.quantity = quantity
+    }
+}
+
+
 class CatalogVC: UIViewController, UICollectionViewDataSource {
     weak var delegate: ViewController2Delegate?
     
@@ -22,11 +38,13 @@ class CatalogVC: UIViewController, UICollectionViewDataSource {
         return collectionView
     }()
     
+    var tableViewData: [Product] = []
+    
     let cellIdentifier = "CustomCell"
     var images: [String] = []
     var labels: [String] = []
     var prices: [String] = []
-    var tableViewData: [(image: UIImage, title: String, price: String)] = []
+    //var tableViewData: [(image: UIImage, title: String, price: String)] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,14 +94,16 @@ class CatalogVC: UIViewController, UICollectionViewDataSource {
         labels = images
         prices = ["117 ₽", "147 ₽", "147 ₽", "137 ₽", "127 ₽", "113 ₽", "147 ₽", "229 ₽", "199 ₽", "199 ₽", "199 ₽", "177 ₽", "115 ₽", "497 ₽", "697 ₽", "657 ₽", "637 ₽"]
 
+       
         for (index, imageName) in images.enumerated() {
             let image = UIImage(named: imageName)!
             let title = labels[index]
             let price = prices[index]
 
-            let tuple: (image: UIImage, title: String, price: String) = (image, title, price)
-            tableViewData.append(tuple)
+            let product = Product(image: image, title: title, price: price, quantity: 0) // Начальное количество 0
+            tableViewData.append(product)
         }
+
     }
     
     // MARK: - UICollectionViewDataSource
